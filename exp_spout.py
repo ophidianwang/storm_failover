@@ -105,24 +105,27 @@ class ExpSpout(Spout):
         # log.debug("ExpSpout.nextTuple()")
         # time.sleep(3)  # prototype減速觀察
         try:
-            message = self.consumer.consume()
-            if message is not None:
-                # log.warning("offset: %s \t value: %s \t at %s", message.offset, message.value, time.time())
-                if self.counter == 0:
-                    self.start_time = time.time()
-                    log.warning("start process 1000000 records at {0} (timestamp@{1})".format(time.time(),
-                                                                                              socket.gethostname()))
-                msg_id = str(self.counter)
-                self.message_pool[msg_id] = message.value  # message cache for fail over
-                storm.emit([message.value], id=msg_id)
-                self.counter += 1
-                if self.counter % 10000 == 0:
-                    log.warning("mark @ #{0}".format(self.counter))
-            if self.counter == 1000000:  # mark time
-                self.end_time = time.time()
-                log.warning("finish process 1000000 records at {0} (timestamp@{1})".format(time.time(),
-                                                                                           socket.gethostname()))
-                log.warning("spend {0} seconds processing 1000000 records".format(self.end_time - self.start_time))
+            # message = self.consumer.consume()
+            for message in self.consumer:
+                if message is not None:
+                    # log.warning("offset: %s \t value: %s \t at %s", message.offset, message.value, time.time())
+                    if self.counter == 0:
+                        self.start_time = time.time()
+                        log.warning("start process 1000000 records at {0} (timestamp@{1})".format(time.time(),
+                                                                                                  socket.gethostname()))
+                    msg_id = str(self.counter)
+                    self.message_pool[msg_id] = message.value  # message cache for fail over
+                    storm.emit([message.value], id=msg_id)
+                    self.counter += 1
+                    if self.counter % 10000 == 0:
+                        log.warning("mark @ #{0}".format(self.counter))
+                if self.counter == 1000000:  # mark time
+                    self.end_time = time.time()
+                    log.warning("finish process 1000000 records at {0} (timestamp@{1})".format(time.time(),
+                                                                                               socket.gethostname()))
+                    log.warning("spend {0} seconds processing 1000000 records".format(self.end_time - self.start_time))
+                if self.counter % 100 == 0:
+                    break
         except Exception as inst:
             log.debug("Exception Type: %s ; Args: %s", type(inst), inst.args)
 
