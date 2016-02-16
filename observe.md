@@ -70,4 +70,4 @@ conclusion:
 ---
 1. spout.nextTuple has basic cost (time); consider it  
 2. emit with tuple.id (i.e. use storm reliable processing) will cost more (time)  
-3. long term loop in spout.nextTuple will make spout.ack / spout.fail be not executable; topology will be blocked, or cause false negative spout.fail  
+3. time-wasting loop in spout.nextTuple will make spout.ack / spout.fail be not executable; topology will be blocked, or cause false negative spout.fail  
