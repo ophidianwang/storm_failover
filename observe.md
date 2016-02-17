@@ -68,6 +68,8 @@ spout spend 220.10848999 seconds processing 1000000 records (no fail)
 
 conclusion:
 ---
-1. spout.nextTuple has basic cost (time); consider it  
-2. emit with tuple.id (i.e. use storm reliable processing) will cost more (time)  
+1. spout.nextTuple has basic cost (time); consider it. (1000000 records spend 100 seconds more in my case)  
+2. emit with tuple.id (i.e. use storm reliable processing) will cost more (time) (1000000 records spend 100 seconds more in my case)  
 3. time-wasting loop in spout.nextTuple will make spout.ack / spout.fail be not executable; topology will be blocked, or cause false negative spout.fail  
+4. if worker / supervisor is down, storm will automatically start another one on other supervisor
+5. still, re-balancing is time-wasting, so prepare more hosts/supervisors than topology required might be better, to prevent 2 or more workers are on the same host (resource competing) 
